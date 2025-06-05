@@ -1,0 +1,135 @@
+
+# T1070 - Indicator Removal
+
+A técnica **T1070 - Indicator Removal** consiste em apagar ou modificar artefatos forenses e logs para dificultar a detecção, investigação e resposta a incidentes. Atacantes usam essas técnicas para cobrir rastros e manter persistência de forma furtiva.
+
+---
+
+## ✅ T1070.001 - Clear Windows Event Logs
+
+```powershell
+# Limpar todos os logs de eventos
+wevtutil el | ForEach-Object { wevtutil cl $_ }
+```
+
+---
+
+## ✅ T1070.002 - Clear Linux or Mac System Logs
+
+```bash
+# Limpar logs no Linux
+cat /dev/null > /var/log/auth.log
+cat /dev/null > /var/log/syslog
+
+# Ou via logrotate forçado
+logrotate -f /etc/logrotate.conf
+```
+
+---
+
+## ✅ T1070.003 - Clear Command History
+
+```bash
+# Limpar histórico de terminal
+history -c && history -w
+rm ~/.bash_history
+unset HISTFILE
+```
+
+```powershell
+# PowerShell
+Remove-Item (Get-PSReadlineOption).HistorySavePath
+```
+
+---
+
+## ✅ T1070.004 - File Deletion
+
+```bash
+# Remoção segura com shred
+shred -u payload.sh
+
+# Windows
+Remove-Item C:\Users\Public\payload.exe -Force
+```
+
+---
+
+## ✅ T1070.005 - Network Connection Removal
+
+```powershell
+# Remover entradas do DNS Resolver Cache
+Clear-DnsClientCache
+```
+
+```bash
+# Limpar ARP e conntrack no Linux
+ip -s -s neigh flush all
+conntrack -F
+```
+
+---
+
+## ✅ T1070.006 - Timestomp (Timestamp Manipulation)
+
+```powershell
+# Alterar timestamp com PowerShell
+(Get-Item C:\Users\Public\payload.exe).CreationTime = "01/01/2001"
+```
+
+```bash
+# Linux - modificar timestamps com touch
+touch -t 202001010000 /tmp/file
+```
+
+---
+
+## ✅ T1070.007 - Log Tampering (Manual or API)
+
+```bash
+# Editar manualmente log de serviço
+sed -i '/192.168.1.100/d' /var/log/apache2/access.log
+```
+
+```powershell
+# Usar API do Windows para parar logging temporariamente
+Stop-EventLog -LogName "Security"
+```
+
+---
+
+## ✅ T1070.008 - Email Deletion (IMAP, Exchange)
+
+```powershell
+# EWS ou MAPI - exclusão via script
+$Inbox = $Namespace.GetDefaultFolder(6)
+$Inbox.Items | Where-Object { $_.Subject -like "*keyword*" } | ForEach-Object { $_.Delete() }
+```
+
+---
+
+## ✅ T1070.009 - CloudTrail Log Deletion (AWS)
+
+```bash
+# Apagar logs em bucket S3 da CloudTrail (requer credencial)
+aws s3 rm s3://trail-logs/AWSLogs/ --recursive
+```
+
+---
+
+## ✅ T1070.010 - Application Log Deletion
+
+```bash
+# Limpar logs de serviços web
+rm /var/log/nginx/access.log
+rm /var/log/nginx/error.log
+```
+
+```powershell
+# Limpar logs locais de app .NET
+Remove-Item C:\App\logs\*.log
+```
+
+---
+
+Remover indicadores de comprometimento é uma etapa comum em ataques avançados e pós-exploração. Ferramentas como timestomp, log cleaners e manipuladores de arquivos são frequentemente usados por operadores experientes.
